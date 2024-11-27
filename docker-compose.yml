@@ -1,0 +1,103 @@
+# Copyright (C) 2024 Ibrahem Mouhamad
+#
+# SPDX-License-Identifier: MIT
+
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_DB: simple_rag
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - simple_rag_db:/var/lib/postgresql/data
+    networks:
+      - simple_rag
+
+  backend:
+    image: ibrym/backend_server:${SIMPLE_RAG_VERSION:-dev}
+    restart: always
+    depends_on:
+      db:
+        condition:
+          service_started
+      qdrant:
+        condition:
+          service_started
+    environment:
+      DJANGO_MODWSGI_EXTRA_ARGS: ''
+      ALLOWED_HOSTS: '*'
+      SIMPLE_RAG_POSTGRES_HOST: ${SIMPLE_RAG_POSTGRES_HOST:-db}
+      SIMPLE_RAG_QDRANT_HOST: ${QDRANT_HOST:-qdrant}
+      SIMPLE_RAG_QDRANT_PORT: ${QDRANT_PORT:-6333}
+      no_proxy: ${no_proxy:-}
+      NUMPROCS: 2
+    command: init run server
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.simple_rag.loadbalancer.server.port=8080
+      - traefik.http.routers.simple_rag.rule=Host(`${SIMPLE_RAG_HOST:-localhost}`) && PathPrefix(`/api/`, `/statics/`, `/admin`,)
+      - traefik.http.routers.simple_rag.entrypoints=web
+    volumes:
+      - ./data:/home/django/data
+      - simple_rag_keys:/home/django/keys
+    networks:
+      - simple_rag
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    restart: always
+    container_name: qdrant
+    ports:
+      - 6333:6333
+      - 6334:6334
+    volumes:
+      - simple_rag_vector_data:/qdrant/storage
+    networks:
+      - simple_rag
+
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    restart: always
+    ports:
+      - 8080:8080
+      - 8090:8090
+    environment:
+      TRAEFIK_ACCESSLOG_FORMAT: json
+      # We ought to restrict which fields get logged, so as to avoid redundant information,
+      # but it doesn't work when configuring with environment variables:
+      # <https://github.com/traefik/traefik/issues/9755>.
+      # And we want to use environment variables to allow individual settings to be
+      # overridden by other Compose files.
+      TRAEFIK_LOG_FORMAT: json
+      TRAEFIK_ENTRYPOINTS_web_ADDRESS: :8080
+      TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT: 'false'
+      TRAEFIK_PROVIDERS_DOCKER_NETWORK: simple_rag
+      TRAEFIK_PROVIDERS_FILE_DIRECTORY: /etc/traefik/rules
+    # Uncomment to get Traefik simple_rag
+    #   - "--entryPoints.simple_rag.address=:8090"
+    #   - "--api.simple_rag=true"
+    # labels:
+    #   - traefik.enable=true
+    #   - traefik.http.routers.simple_rag.entrypoints=simple_rag
+    #   - traefik.http.routers.simple_rag.service=api@internal
+    #   - traefik.http.routers.simple_rag.rule=Host(`${SIMPLE_RAG_HOST:-localhost}`)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - simple_rag
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: 100m
+        max-file: '10'
+
+volumes:
+  simple_rag_db:
+  simple_rag_keys:
+  simple_rag_vector_data:
+
+networks:
+  simple_rag:

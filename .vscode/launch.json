@@ -1,0 +1,78 @@
+{
+    "version": "0.0.1",
+    "configurations": [
+        {
+            "name": "server: django",
+            "type": "debugpy",
+            "request": "launch",
+            "stopOnEntry": false,
+            "justMyCode": false,
+            "python": "${command:python.interpreterPath}",
+            "program": "${workspaceRoot}/manage.py",
+            "env": {},
+            "args": [
+                "runserver",
+                "--noreload",
+                "--insecure",
+                "127.0.0.1:7000"
+            ],
+            "django": true,
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+        },
+        {
+            "name": "server: migrate",
+            "type": "debugpy",
+            "request": "launch",
+            "justMyCode": false,
+            "stopOnEntry": false,
+            "python": "${command:python.interpreterPath}",
+            "program": "${workspaceRoot}/manage.py",
+            "args": [
+                "migrate"
+            ],
+            "django": true,
+            "cwd": "${workspaceFolder}",
+            "env": {},
+            "console": "internalConsole"
+        },
+        {
+            "name": "server: tests",
+            "type": "debugpy",
+            "request": "launch",
+            "justMyCode": false,
+            "stopOnEntry": false,
+            "python": "${command:python.interpreterPath}",
+            "program": "${workspaceRoot}/manage.py",
+            "args": [
+                "test",
+                "--settings",
+                "simple_rag.settings.testing",
+                "simple_rag/apps"
+            ],
+            "django": true,
+            "cwd": "${workspaceFolder}",
+            "env": {},
+            "console": "internalConsole"
+        },
+        {
+            "name": "server: Generate REST API Schema",
+            "type": "debugpy",
+            "request": "launch",
+            "justMyCode": false,
+            "stopOnEntry": false,
+            "python": "${command:python.interpreterPath}",
+            "program": "${workspaceRoot}/manage.py",
+            "args": [
+                "spectacular",
+                "--file",
+                "${workspaceFolder}/simple_rag/schema.yml"
+            ],
+            "django": true,
+            "cwd": "${workspaceFolder}",
+            "env": {},
+            "console": "internalConsole"
+        },
+    ]
+
+}

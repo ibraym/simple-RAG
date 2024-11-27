@@ -1,0 +1,9 @@
+-r base.in
+
+black==23.11.0
+django-extensions==3.2.3
+pylint-django==2.5.5
+pylint-plugin-utils==0.8.2
+pylint==3.0.2
+rope==1.11.0
+snakeviz==2.2.0

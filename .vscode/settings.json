@@ -1,0 +1,18 @@
+{
+    "licenser.license": "Custom",
+    "licenser.customHeader": "Copyright (C) @YEAR@ Ibrahem Mouhamad\n\nSPDX-License-Identifier: MIT",
+    "files.trimTrailingWhitespace": true,
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/",
+    "python.testing.pytestArgs": [
+        "--rootdir",
+        "${workspaceFolder}/tests/"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "python.testing.pytestPath": "${workspaceFolder}/.env/bin/pytest",
+    "python.testing.cwd": "${workspaceFolder}/tests",
+    "git.enableCommitSigning": true,
+    "cSpell.words": [
+        "encrypter"
+    ]
+}

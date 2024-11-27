@@ -1,0 +1,31 @@
+# Copyright (C) 2024 Ibrahem Mouhamad
+#
+# SPDX-License-Identifier: MIT
+
+
+services:
+  backend:
+    labels:
+      - traefik.http.routers.simple_rag.entrypoints=websecure
+      - traefik.http.routers.simple_rag.tls.certresolver=lets-encrypt
+
+
+  traefik:
+    image: traefik:v2.9
+    container_name: traefik
+    environment:
+      TRAEFIK_ENTRYPOINTS_web_ADDRESS: :8080
+      TRAEFIK_ENTRYPOINTS_web_HTTP_REDIRECTIONS_ENTRYPOINT_TO: websecure
+      TRAEFIK_ENTRYPOINTS_web_HTTP_REDIRECTIONS_ENTRYPOINT_SCHEME: https
+      TRAEFIK_ENTRYPOINTS_websecure_ADDRESS: :8443
+      TRAEFIK_CERTIFICATESRESOLVERS_lets-encrypt_ACME_EMAIL: "${ACME_EMAIL:?Please set the ACME_EMAIL env variable}"
+      TRAEFIK_CERTIFICATESRESOLVERS_lets-encrypt_ACME_TLSCHALLENGE: "true"
+      TRAEFIK_CERTIFICATESRESOLVERS_lets-encrypt_ACME_STORAGE: /letsencrypt/acme.json
+    ports:
+      - 8080:8080
+      - 8443:8443
+    volumes:
+      - simple_rag_letsencrypt:/letsencrypt
+
+volumes:
+  simple_rag_letsencrypt:

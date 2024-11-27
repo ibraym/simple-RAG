@@ -1,0 +1,22 @@
+# Copyright (C) 2021 Ibrahem Mouhamad
+#
+# SPDX-License-Identifier: MIT
+
+version: '3.3'
+
+services:
+  db:
+    ports:
+      - '5432:5432'
+
+  backend:
+    build:
+      context: .
+      args:
+        http_proxy:
+        https_proxy:
+        socks_proxy:
+        CLAM_AV:
+        COVERAGE_PROCESS_START:
+    ports:
+      - '9090:9090'

@@ -1,0 +1,56 @@
+# Project Specific
+/data/
+/models/
+/share/
+/statics/
+/db.sqlite3
+/.*env*
+/keys
+/logs
+/profiles
+/ssh/*
+!/ssh/README.md
+/letsencrypt-webroot/
+/qdrant_data/
+/model_config
+
+# Ignore temporary files
+docker-compose.override.yml
+__pycache__
+*.pyc
+._*
+.coverage
+.husky/
+.python-version
+
+# Ignore npm logs file
+yarn-debug.log*
+yarn-error.log*
+
+.DS_Store
+
+#Ignore Cypress tests temp files
+/tests/cypress/fixtures
+/tests/cypress/screenshots
+
+#Ignore helm-related files
+/helm-chart/Chart.lock
+/helm-chart/values.*.yaml
+/helm-chart/*.values.yaml
+/helm-chart/charts/*
+
+#Ignore website temp files
+/site/public/
+/site/resources/
+/site/node_modules/
+/site/tech-doc-hugo
+/site/.hugo_build.lock
+
+# Ignore all the installed packages
+node_modules
+
+# Ignore all js dists
+simple_rag-ui/build
+
+# produced by prepare in the root package.json script
+.husky

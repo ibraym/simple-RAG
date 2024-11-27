@@ -1,0 +1,233 @@
+openapi: 3.0.3
+info:
+  title: Simple RAG REST API
+  version: 1.0.0
+  description: REST API for Simple RAG project
+  termsOfService: https://www.google.com/policies/terms/
+  contact:
+    name: Ibrahem Mouhamad
+    url: https://github.com/ibraym/simple-rag
+    email: ibrahem.y.mouhamad@gmail.com
+  license:
+    name: MIT License
+    url: https://en.wikipedia.org/wiki/MIT_License
+paths:
+  /api/rag/process:
+    post:
+      operationId: rag_create_process
+      description: Process text and return normalized tokens.
+      summary: Process text and return normalized tokens
+      tags:
+      - rag
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TextRequestRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/vnd.simple_rag+json:
+              schema:
+                $ref: '#/components/schemas/ProcessTextResponse'
+          description: ''
+  /api/rag/query:
+    post:
+      operationId: rag_create_query
+      description: Search fo top 3 most relevant texts from vector database.
+      summary: Search fo top 3 most relevant texts from vector database
+      tags:
+      - rag
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TextRequestRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/vnd.simple_rag+json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QueryRequest'
+          description: ''
+  /api/schema/:
+    get:
+      operationId: schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - ug
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      - in: query
+        name: scheme
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      tags:
+      - schema
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+components:
+  schemas:
+    ProcessTextResponse:
+      type: object
+      properties:
+        tokens:
+          type: array
+          items:
+            type: string
+      required:
+      - tokens
+    QueryRequest:
+      type: object
+      properties:
+        dataset:
+          type: string
+        text:
+          type: string
+        score:
+          type: number
+          format: double
+      required:
+      - dataset
+      - score
+      - text
+    TextRequestRequest:
+      type: object
+      properties:
+        text:
+          type: string
+          minLength: 1
+      required:
+      - text
