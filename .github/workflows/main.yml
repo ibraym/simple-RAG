@@ -45,7 +45,7 @@ jobs:
           cache-from: type=local,src=/tmp/backend_server_cache_server
           context: .
           file: Dockerfile
-          tags: ibrym/backend_server
+          tags: ibraym/backend_server
           outputs: type=docker,dest=/tmp/backend_server/image.tar
 
       - name: Load Docker images
