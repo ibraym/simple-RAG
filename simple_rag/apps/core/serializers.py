@@ -9,6 +9,11 @@ from simple_rag.apps.core.models import TextRequest, ProcessTextResponse, QueryR
 class TextRequestSerializer(serializers.Serializer):
     text = serializers.CharField()
 
+    def validate(self, instance: TextRequest):
+        if instance.text is None or instance.text == '':
+            raise serializers.ValidationError('text should not be empty')
+        return instance
+
     def to_internal_value(self, data):
         return TextRequest(text=data['text'])
 
@@ -38,14 +43,10 @@ class QueryRequestSerializer(serializers.Serializer):
         return QueryRequest(
             dataset=data['dataset'],
             text=data['text'],
-            score=data['score']
+            score=data['score'],
+            additional_metadata=data['additional_metadata']
         )
 
     def to_representation(self, instance: QueryRequest):
-        data = {
-            'dataset': instance.dataset,
-            'text': instance.text,
-            'score': instance.score
-        }
-
+        data = instance.model_dump(mode='json')
         return data

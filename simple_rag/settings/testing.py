@@ -24,3 +24,4 @@ for logger in LOGGING["loggers"].values():
 
 
 LOGGING["handlers"]["server_file"] = LOGGING["handlers"]["console"]
+ENABLE_ENGINE = False

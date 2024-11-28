@@ -13,7 +13,7 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
-from simple_rag.apps.core.viewes import RAGView
+from simple_rag.apps.core.views import RAGView
 
 router = routers.DefaultRouter(trailing_slash=False)
 router.register("rag", RAGView, basename="rag")

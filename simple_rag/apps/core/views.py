@@ -39,10 +39,10 @@ class RAGView(viewsets.ViewSet):
         """
         Process text and return normalized tokens.
         """
-        request_serializer = TextRequestSerializer(data=request.data)
-        request_serializer.is_valid(raise_exception=True)
-        request: TextRequest = request_serializer.validated_data
         try:
+            request_serializer = TextRequestSerializer(data=request.data)
+            request_serializer.is_valid(raise_exception=True)
+            request: TextRequest = request_serializer.validated_data
             tokens = process_text(request.text)
             serializer = ProcessTextResponseSerializer(
                 ProcessTextResponse(
@@ -57,10 +57,10 @@ class RAGView(viewsets.ViewSet):
         """
         Search fo top 3 most relevant texts from vector database.
         """
-        request_serializer = TextRequestSerializer(data=request.data)
-        request_serializer.is_valid(raise_exception=True)
-        request: TextRequest = request_serializer.validated_data
         try:
+            request_serializer = TextRequestSerializer(data=request.data)
+            request_serializer.is_valid(raise_exception=True)
+            request: TextRequest = request_serializer.validated_data
             response = query_engine.query(
                 ' '.join(process_text(request.text)),
             )
@@ -68,7 +68,11 @@ class RAGView(viewsets.ViewSet):
             for node in response.source_nodes:
                 data.append(QueryRequest(
                     dataset=node.metadata['file_name'],
-                    text=node.metadata['original_text'],
+                    text=node.metadata['review_text'],
+                    additional_metadata={
+                        'name_ru': node.metadata['name_ru'],
+                        'rubrics': node.metadata['rubrics'],
+                    },
                     score=node.get_score()
                 ))
             serializer = QueryRequestSerializer(
@@ -77,4 +81,3 @@ class RAGView(viewsets.ViewSet):
             return Response(serializer.data)
         except Exception as e:
             return Response({'error': str(e)}, status=400)
-

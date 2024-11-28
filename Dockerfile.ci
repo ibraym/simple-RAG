@@ -1,0 +1,24 @@
+# Copyright (C) 2024 Ibrahem Mouhamad
+#
+# SPDX-License-Identifier: MIT
+
+FROM ibrym/backend_server:local
+
+ENV DJANGO_SETTINGS_MODULE=simple_rag.settings.testing
+USER root
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends install -yq \
+    gpg-agent \
+    gnupg2 \
+    apt-utils \
+    build-essential \
+    python3-dev \
+
+COPY simple_rag/requirements/ /tmp/simple_rag/requirements/
+
+RUN python3 -m pip install --no-cache-dir -r /tmp/simple_rag/requirements/testing.txt
+
+COPY .coveragerc .
+
+ENTRYPOINT []

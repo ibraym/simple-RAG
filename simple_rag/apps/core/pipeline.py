@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import re
 import os
 from os import path as osp
 from typing import List, Sequence, Tuple
@@ -10,7 +11,7 @@ from django.conf import settings
 import spacy
 from llama_index.core import Settings
 from llama_index.core.schema import TransformComponent, BaseNode
-from llama_index.core.node_parser import SentenceSplitter
+from llama_index.core.node_parser import TextSplitter
 from sklearn.feature_extraction.text import TfidfVectorizer
 import joblib
 from django.conf import settings
@@ -28,19 +29,47 @@ else:
 Settings.embed_model = settings.RAG_SETTINGS['EMBED_MODEL']
 Settings.llm = settings.RAG_SETTINGS['LLM']
 
-def process_text(text: str) -> List[str]:
+def process_text(text: str):
     """
     Process text and return normalized tokens.
     """
     doc = nlp(text)
 
-    tokens: List[str] = [
+    tokens = [
         token.lemma_.lower()
         for token in doc
         if token.is_alpha and not token.is_stop and not token.is_punct
     ]
 
     return tokens
+
+def process_review(text: str):
+    """
+    Processes a review text and extracts specific fields.
+    Args:
+        text (str): The review text to be processed.
+    Returns:
+        dict: A dictionary containing the extracted fields 'name_ru', 'rubrics', and 'text'.
+              If the input text is empty or only contains whitespace, returns None.
+    Extracted Fields:
+        - 'name_ru': The value following 'name_ru=' and before 'rubrics=' or 'text=' or end of string.
+        - 'rubrics': The value following 'rubrics=' and before 'text=' or end of string.
+        - 'text': The value following 'text=' until the end of the string.
+    """
+
+    if text.strip():
+        review = {}
+        name_match = re.search(r'name_ru=(.*?)(?=\srubrics=|\stext=|$)', text)
+        rubrics_match = re.search(r'rubrics=(.*?)(?=\stext=|$)', text)
+        text_match = re.search(r'text=(.*)', text)
+
+        review['name_ru'] = name_match.group(1).strip() if name_match else ''
+        review['rubrics'] = rubrics_match.group(1).strip() if rubrics_match else ''
+        review['text'] = text_match.group(1).strip() if text_match else None
+
+        return review
+
+    return None
 
 class ProcessTextTransformer(TransformComponent):
     """
@@ -52,14 +81,41 @@ class ProcessTextTransformer(TransformComponent):
 
     def __call__(self, nodes: Sequence[BaseNode], **kwargs) -> Sequence[BaseNode]:
         """
-        Process text and return normalized tokens.
+        Process text and return normalized text with metadata.
         """
+        processed_nodes = []
         for node in nodes:
             text = node.get_content()
-            tokens = process_text(text)
+            # get review parts
+            review = process_review(text)
+            if review is None or review['text'] == '':
+                continue
+            # process full review
+            review_text = f"{review['name_ru']} {review['rubrics']} {review['text']}"
+            tokens = process_text(review_text)
+            # set content to processed tokens
             node.set_content(' '.join(tokens))
-            node.metadata['original_text'] = text
-        return nodes
+            # set metadata
+            node.metadata['name_ru'] = review['name_ru']
+            node.metadata['rubrics'] = review['rubrics']
+            node.metadata['review_text'] = review['text']
+            node.excluded_embed_metadata_keys.extend(['name_ru', 'rubrics', 'review_text', 'file_path'])
+            processed_nodes.append(node)
+        return processed_nodes
+
+class CustomTextSplitter(TextSplitter):
+    """
+    CustomTextSplitter is a subclass of TextSplitter that splits text based on
+    a specific regular expression pattern `(?=name_ru=)`.
+    """
+    def split_text(self, text: str) -> List[str]:
+        return re.split(r'(?=name_ru=)', text)
+
+# create the pipeline with transformations
+pipeline = [
+    CustomTextSplitter(),
+    ProcessTextTransformer(),
+]
 
 def sparse_doc_vectors(
     texts: List[str],
@@ -68,23 +124,17 @@ def sparse_doc_vectors(
     Compute sparse document vectors using TF-IDF.
     To be used by VectorStoreIndex.
     """
-    # remove metadata
-    text_cleaned = [
-        ' '.join(text.split('\n\n')[1:])
-        for text in texts
-    ]
-    # compute tf-idf
-    tfidf_matrix = vectorizer.fit_transform(text_cleaned)
+    tfidf_matrix = vectorizer.fit_transform(texts)
 
     # cache the vectorizer
     joblib.dump(vectorizer, vectorizer_cache_path)
 
     indices = []
     values = []
-    for i in range(len(text_cleaned)):
-        curr_indices = tfidf_matrix[i,:].nonzero()[1]
-        values.append([tfidf_matrix[i, x] for x in curr_indices])
-        indices.append(curr_indices)
+    for i in range(len(texts)):
+        cuu_indices = tfidf_matrix[i,:].nonzero()[1]
+        values.append([tfidf_matrix[i, x] for x in cuu_indices])
+        indices.append(cuu_indices)
 
     return indices, values
 
@@ -102,14 +152,5 @@ def sparse_query_vectors(
         cuu_indices = tfidf_matrix[i,:].nonzero()[1]
         values.append([tfidf_matrix[i, x] for x in cuu_indices])
         indices.append(cuu_indices)
-
     return indices, values
 
-# create the pipeline with transformations
-pipeline = [
-    SentenceSplitter(
-        chunk_size=settings.RAG_SETTINGS['CHUNK_SIZE'],
-        chunk_overlap=settings.RAG_SETTINGS['CHUNK_OVERLAP'],
-    ),
-    ProcessTextTransformer(),
-]

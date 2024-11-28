@@ -61,6 +61,7 @@ def get_index(
     )
     index = VectorStoreIndex.from_vector_store(
         vector_store=vector_store,
+        transformations=pipeline
     )
     return index
 
@@ -71,6 +72,8 @@ def create_query_engine(
     """
     Create a query engine.
     """
+    if not settings.ENABLE_ENGINE:
+        return None
     index: VectorStoreIndex = get_index()
     query_engine: BaseQueryEngine = index.as_query_engine(
         similarity_top_k=similarity_top_k,
@@ -83,5 +86,4 @@ def collection_exists(collection_name: str = settings.RAG_SETTINGS['VECTOR_STORE
     """
     Check if a collection exists in the vector store.
     """
-    collections = [collection.name for collection in client.get_collections().collections]
-    return collection_name in collections
+    return client.collection_exists(collection_name=collection_name)

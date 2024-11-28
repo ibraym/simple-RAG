@@ -1,0 +1,43 @@
+name: Cache
+on:
+  push:
+    branches:
+      - 'develop'
+
+jobs:
+  get-sha:
+    uses: ./.github/workflows/search-cache.yml
+
+  Caching_SIMPLE_RAG:
+    needs: get-sha
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/cache@v3
+        id: server-cache-action
+        with:
+          path: /tmp/backend_server_cache_server
+          key: ${{ runner.os }}-build-server-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-build-server-${{ needs.get-sha.outputs.sha }}
+            ${{ runner.os }}-build-server-
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Caching simple_rag Server
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          cache-from: type=local,src=/tmp/backend_server_cache_server
+          cache-to: type=local,dest=/tmp/backend_server_cache_server-new
+
+      - name: Moving cache
+        run: |
+          rm -rf /tmp/backend_server_cache_server
+          mv /tmp/backend_server_cache_server-new /tmp/backend_server_cache_server

@@ -302,6 +302,7 @@ SPECTACULAR_SETTINGS = {
 }
 
 # vector database server configuration
+ENABLE_ENGINE = True
 QDRANT_GATEWAY = {
     'HOST': os.getenv('QDRANT_HOST', 'qdrant'),
     'PORT': os.getenv('QDRANT_PORT', 6333),
@@ -312,11 +313,9 @@ RAG_SETTINGS = {
     'EMBED_MODEL': None,
     'LLM': None,
     'DATASET_EXTS': ['.txt'],
-    'CHUNK_SIZE': 50,
-    'CHUNK_OVERLAP': 0,
     'VECTOR_STORE': {
         'COLLECTION_NAME': 'user_reviews',
-        'BATCH_SIZE': 20,
+        'BATCH_SIZE': 100,
         'ENABLE_HYBRID': True,
     },
     'QUERY': {
