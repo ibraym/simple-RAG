@@ -20,15 +20,6 @@ jobs:
       !startsWith(github.event.pull_request.title, '[Dependent]')
     uses: ./.github/workflows/search-cache.yml
 
-  check_tests:
-    runs-on: ubuntu-latest
-    outputs:
-      rest: ${{ steps.rest_tests.outputs.exist }}
-      e2e: ${{ steps.e2e_tests.outputs.exist }}
-      opa: ${{ steps.opa_tests.outputs.exist }}
-    steps:
-      - uses: actions/checkout@v1
-
   build:
     needs: search_cache
     runs-on: ubuntu-latest
@@ -55,7 +46,7 @@ jobs:
               "COVERAGE_PROCESS_START=.coveragerc"
           cache-from: type=local,src=/tmp/backend_server_cache_server
           context: .
-          file: Dockerfile
+          file: Dockerfile.ci
           tags: ibrym/backend_server
           outputs: type=docker,dest=/tmp/backend_server/image.tar
 
