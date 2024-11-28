@@ -111,7 +111,7 @@ jobs:
           HOST_COVERAGE_DATA_DIR: ${{ github.workspace }}
           CONTAINER_COVERAGE_DATA_DIR: "/coverage_data"
         run: |
-          docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d backend_server
+          # docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d backend
 
           docker compose -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.ci.yml run ci /bin/bash \
             -c 'coverage run -a manage.py test simple_rag/apps && coverage json && mv coverage.json ${CONTAINER_COVERAGE_DATA_DIR}/unit_tests_coverage.json'
@@ -124,13 +124,13 @@ jobs:
             ${{ github.workspace }}/coverage-final.json
             ${{ github.workspace }}/unit_tests_coverage.json
 
-      - name: Creating a log file from simple_rag containers
-        if: failure()
-        env:
-          LOGS_DIR: "${{ github.workspace }}/unit_testing"
-        run: |
-            mkdir $LOGS_DIR
-            docker logs backend_server > $LOGS_DIR/backend_server.log
+      # - name: Creating a log file from simple_rag containers
+      #   if: failure()
+      #   env:
+      #     LOGS_DIR: "${{ github.workspace }}/unit_testing"
+      #   run: |
+      #       mkdir $LOGS_DIR
+      #       docker logs backend_server > $LOGS_DIR/backend_server.log
 
       - name: Uploading "simple_rag" container logs as an artifact
         if: failure()
