@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-FROM ibrym/backend_server:local
+FROM ibraym/backend_server:local
 
 ENV DJANGO_SETTINGS_MODULE=simple_rag.settings.testing
 USER root

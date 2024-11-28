@@ -16,7 +16,7 @@ services:
       - simple_rag
 
   backend:
-    image: ibrym/backend_server:${SIMPLE_RAG_VERSION:-dev}
+    image: ibraym/backend_server:${SIMPLE_RAG_VERSION:-dev}
     restart: always
     depends_on:
       db:

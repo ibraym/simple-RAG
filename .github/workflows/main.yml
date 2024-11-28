@@ -62,21 +62,21 @@ jobs:
           cache-from: type=local,src=/tmp/backend_server_cache_server
           context: .
           file: Dockerfile.ci
-          tags: ibrym/backend_server
+          tags: ibraym/backend_server
           outputs: type=docker,dest=/tmp/backend_server/image.tar
 
       - name: Verify API schema
         id: verify_schema
         run: |
           docker load --input /tmp/backend_server/image.tar
-          docker run --rm --entrypoint /bin/bash ibrym/backend_server \
+          docker run --rm --entrypoint /bin/bash ibraym/backend_server \
             -c 'python manage.py spectacular' > simple_rag/schema-expected.yml
 
           if ! git diff --no-index simple_rag/schema.yml simple_rag/schema-expected.yml; then
             echo
             echo 'API schema has changed! Please update simple_rag/schema.yml:'
             echo
-            echo '  docker run --rm --entrypoint /bin/bash ibrym/backend_server:dev \'
+            echo '  docker run --rm --entrypoint /bin/bash ibraym/backend_server:dev \'
             echo "    -c 'python manage.py spectacular' > simple_rag/schema.yml"
             exit 1
           fi
