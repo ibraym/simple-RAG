@@ -42,6 +42,15 @@ jobs:
       - name: backend server. Build and push
         uses: docker/build-push-action@v3
         with:
+          cache-from: type=local,src=/tmp/backend_server_cache_server
+          context: .
+          file: Dockerfile
+          tags: ibrym/backend_server
+          outputs: type=docker,dest=/tmp/backend_server/image.tar
+
+      - name: backend server ci. Build and push
+        uses: docker/build-push-action@v3
+        with:
           build-args: |
               "COVERAGE_PROCESS_START=.coveragerc"
           cache-from: type=local,src=/tmp/backend_server_cache_server
@@ -122,19 +131,3 @@ jobs:
         with:
           name: unit_tests_container_logs
           path: "${{ github.workspace }}/unit_testing"
-
-  codecov:
-    runs-on: ubuntu-latest
-    needs: [unit_testing]
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Downloading coverage results
-        uses: actions/download-artifact@v3
-        with:
-          name: coverage_results
-
-      - name: Upload coverage reports to Codecov with GitHub Action
-        uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}

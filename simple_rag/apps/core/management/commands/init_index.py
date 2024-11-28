@@ -16,6 +16,8 @@ class Command(BaseCommand):
     help = 'Build index for all documents'
 
     def handle(self, *args, **options):
+        if not settings.ENABLE_ENGINE:
+            return None
         try:
             self.stdout.write(self.style.NOTICE('Starting to build index for all documents...'))
             documents = list_documents(settings.DATASETS_ROOT)
