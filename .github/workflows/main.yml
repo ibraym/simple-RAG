@@ -45,13 +45,12 @@ jobs:
           cache-from: type=local,src=/tmp/backend_server_cache_server
           context: .
           file: Dockerfile
-          tags: ibraym/backend_server
+          tags: ibraym/backend_server:${SIMPLE_RAG_VERSION}
           outputs: type=docker,dest=/tmp/backend_server/image.tar
+          load: true
 
       - name: Load Docker images
         run: |
-          docker load --input /tmp/backend_server/image.tar
-          docker tag ibraym/backend_server:latest ibraym/backend_server:${SIMPLE_RAG_VERSION}
           docker image ls -a
 
       - name: backend server ci. Build and push
