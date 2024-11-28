@@ -76,11 +76,87 @@ docker-compose up -d
 
    - Process text request:
 
+    ![](./docs/img/rag_process.JPG)
+
    - Query index request:
 
-### Run test
+   ![](./docs/img/rag_query.JPG)
 
-To run test, run the following command inside simple-RAG folder:
+2. Using Python:
+
+   - Process text request:
+   ```
+   import requests
+
+    url = 'http://localhost:8080/api/rag/process'
+    headers = {
+        'accept': 'application/vnd.simple_rag+json',
+        'Content-Type': 'application/json',
+    }
+    data = {
+        'text': 'Хорошые цены широкий выбор Сантехникаэлектрика жестяной цех ремонт инструмента и тогда ли.'
+    }
+
+    response = requests.post(url, headers=headers, json=data)
+    print(response.json())
+   ```
+   - Query index request:
+   ```
+   import requests
+
+    url = 'http://localhost:8080/api/rag/query'
+    headers = {
+        'accept': 'application/vnd.simple_rag+json',
+        'Content-Type': 'application/json',
+    }
+    data = {
+        'text': 'Хорошые цены'
+    }
+
+    response = requests.post(url, headers=headers, json=data)
+    print(response.json())
+    ```
+
+### Development Environment
+
+1. Install necessary dependencies (Ubuntu 24.04):
+```
+sudo apt-get update && sudo apt-get --no-install-recommends install -y build-essential curl git python3-dev python3-pip python3-venv pkg-config apache2-dev
+```
+
+2. Install VS Code.
+
+3. Install the following VScode extensions:
+   - JavaScript Debugger
+   - Python
+   - ESLint
+   - Stylelint
+   - Prettier Formatter for Visual Studio Code
+   - licenser
+   - Trailing Spaces
+   - Code Spell Checker
+
+4. Make sure to use Python 3.10.0 or higher
+```
+python3 --version
+```
+
+6. Setup code
+```
+git clone git clone https://github.com/ibraym/simple-RAG
+cd simple-RAG
+python3 -m venv .env
+. .env/bin/activate
+pip install -U pip wheel setuptools
+pip install \
+    -r simple-rag/requirements/development.txt \
+    -r simple-rag/requirements/production.txt
+python manage.py migrate
+python manage.py collectstatic
+python -m spacy download ru_core_news_sm
+```
+
+7. To run test, run the following command inside simple-RAG folder:
 
 ```
 python manage.py test --settings simple_rag.settings.testing simple_rag/apps/
