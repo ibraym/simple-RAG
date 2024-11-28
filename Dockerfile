@@ -126,7 +126,7 @@ RUN if [ "${COVERAGE_PROCESS_START}" ]; then \
 USER ${USER}
 WORKDIR ${HOME}
 
-RUN mkdir -p data keys logs /tmp/supervisord statics
+RUN mkdir -p keys logs /tmp/supervisord statics
 
 EXPOSE 8080
 ENTRYPOINT ["./backend_entrypoint.sh"]
