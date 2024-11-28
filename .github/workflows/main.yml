@@ -48,6 +48,12 @@ jobs:
           tags: ibrym/backend_server
           outputs: type=docker,dest=/tmp/backend_server/image.tar
 
+      - name: Load Docker images
+        run: |
+          docker load --input /tmp/backend_server/image.tar
+          docker tag ibraym/backend_server:latest ibraym/backend_server:${SIMPLE_RAG_VERSION}
+          docker image ls -a
+
       - name: backend server ci. Build and push
         uses: docker/build-push-action@v3
         with:
