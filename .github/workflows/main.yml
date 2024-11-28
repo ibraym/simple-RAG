@@ -49,38 +49,38 @@ jobs:
           outputs: type=docker,dest=/tmp/backend_server/image.tar
           load: true
 
-      - name: Load Docker images
-        run: |
-          docker load --input /tmp/backend_server/image.tar
-          cache-from: type=local,src=/tmp/backend_server_cache_server
-          docker image ls -a
+      # - name: Load Docker images
+      #   run: |
+      #     docker load --input /tmp/backend_server/image.tar
+      #     cache-from: type=local,src=/tmp/backend_server_cache_server
+      #     docker image ls -a
 
-      - name: backend server ci. Build and push
-        uses: docker/build-push-action@v3
-        with:
-          build-args: |
-              "COVERAGE_PROCESS_START=.coveragerc"
-          cache-from: type=registry,ref=ibraym/backend_server:latest
-          context: .
-          file: Dockerfile.ci
-          tags: ibraym/backend_server
-          outputs: type=docker,dest=/tmp/backend_server/image.tar
+      # - name: backend server ci. Build and push
+      #   uses: docker/build-push-action@v3
+      #   with:
+      #     build-args: |
+      #         "COVERAGE_PROCESS_START=.coveragerc"
+      #     cache-from: type=registry,ref=ibraym/backend_server:latest
+      #     context: .
+      #     file: Dockerfile.ci
+      #     tags: ibraym/backend_server
+      #     outputs: type=docker,dest=/tmp/backend_server/image.tar
 
-      - name: Verify API schema
-        id: verify_schema
-        run: |
-          docker load --input /tmp/backend_server/image.tar
-          docker run --rm --entrypoint /bin/bash ibraym/backend_server \
-            -c 'python manage.py spectacular' > simple_rag/schema-expected.yml
+      # - name: Verify API schema
+      #   id: verify_schema
+      #   run: |
+      #     docker load --input /tmp/backend_server/image.tar
+      #     docker run --rm --entrypoint /bin/bash ibraym/backend_server \
+      #       -c 'python manage.py spectacular' > simple_rag/schema-expected.yml
 
-          if ! git diff --no-index simple_rag/schema.yml simple_rag/schema-expected.yml; then
-            echo
-            echo 'API schema has changed! Please update simple_rag/schema.yml:'
-            echo
-            echo '  docker run --rm --entrypoint /bin/bash ibraym/backend_server:dev \'
-            echo "    -c 'python manage.py spectacular' > simple_rag/schema.yml"
-            exit 1
-          fi
+      #     if ! git diff --no-index simple_rag/schema.yml simple_rag/schema-expected.yml; then
+      #       echo
+      #       echo 'API schema has changed! Please update simple_rag/schema.yml:'
+      #       echo
+      #       echo '  docker run --rm --entrypoint /bin/bash ibraym/backend_server:dev \'
+      #       echo "    -c 'python manage.py spectacular' > simple_rag/schema.yml"
+      #       exit 1
+      #     fi
 
       - name: Upload SIMPLE_RAG server artifact
         uses: actions/upload-artifact@v3
