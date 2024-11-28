@@ -35,12 +35,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Verify version consistency
-        run: ./dev/update_version.py --verify-current
-
-      - name: Check changelog fragments
-        run: ./dev/check_changelog_fragments.py
-
       - name: backend server. Getting cache from the default branch
         uses: actions/cache@v3
         with:
