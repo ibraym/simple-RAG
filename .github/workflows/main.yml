@@ -52,7 +52,7 @@ jobs:
       - name: Load Docker images
         run: |
           docker load --input /tmp/backend_server/image.tar
-          docker tag ibraym/backend_server:latest ibraym/backend_server:${SIMPLE_RAG_VERSION}
+          cache-from: type=local,src=/tmp/backend_server_cache_server
           docker image ls -a
 
       - name: backend server ci. Build and push
@@ -60,7 +60,7 @@ jobs:
         with:
           build-args: |
               "COVERAGE_PROCESS_START=.coveragerc"
-          cache-from: type=registry,ref=ibraym/backend_server:${SIMPLE_RAG_VERSION}
+          cache-from: type=registry,ref=ibraym/backend_server:latest
           context: .
           file: Dockerfile.ci
           tags: ibraym/backend_server
