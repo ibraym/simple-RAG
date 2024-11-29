@@ -2,6 +2,8 @@
 
 We use [reviews](https://github.com/yandex/geo-reviews-dataset-2023) dataset form Yandex to create a sparse vectors index and a query engine above it. We cleaned the original dataset and generated new datasets located in [datasets folder](./data/datasets/).
 
+Our implementation can support hybrid mode, where dense and sparse vectors are generated and used for search. In that case we need to enable embedding generation and specify the required models for `RAG_SETTINGS['EMBED_MODEL']` and `RAG_SETTINGS['LLM']` attributes in [settings](./simple_rag/settings/base.py) file. Also, we need to enable hybrid search mode instead of sparse for  `RAG_SETTINGS['QUERY']['MODE']` attribute. (NOT TESTED)
+
 ### Key Features
 
 1. **Text Processing and Normalization**: [pipeline.py](./simple_rag/apps/core/pipeline.py)
